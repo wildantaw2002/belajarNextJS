@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CRUD Mahasiswa - React</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+
+        function App() {
+            // State untuk menyimpan data mahasiswa
+            const [students, setStudents] = React.useState([
+                { id: 1, nama: 'Budi Santoso', nim: '12345', jurusan: 'Informatika' },
+                { id: 2, nama: 'Siti Aminah', nim: '12346', jurusan: 'Sistem Informasi' }
+            ]);
+
+            // State untuk form input
+            const [formData, setFormData] = React.useState({
+                nama: '',
+                nim: '',
+                jurusan: ''
+            });
+
+            // State untuk mode edit
+            const [editId, setEditId] = React.useState(null);
+
+            // Handle perubahan input
+            const handleInputChange = (e) => {
+                const { name, value } = e.target;
+                setFormData({
+                    ...formData,
+                    [name]: value
+                });
+            };
+
+            // CREATE - Tambah data mahasiswa
+            const handleCreate = () => {
+                if (!formData.nama || !formData.nim || !formData.jurusan) {
+                    alert('Semua field harus diisi!');
+                    return;
+                }
+
+                const newStudent = {
+                    id: Date.now(), // ID sederhana menggunakan timestamp
+                    nama: formData.nama,
+                    nim: formData.nim,
+                    jurusan: formData.jurusan
+                };
+
+                setStudents([...students, newStudent]);
+                resetForm();
+            };
+
+            // READ - Data sudah di state students
+
+            // UPDATE - Edit data mahasiswa
+            const handleEdit = (student) => {
+                setFormData({
+                    nama: student.nama,
+                    nim: student.nim,
+                    jurusan: student.jurusan
+                });
+                setEditId(student.id);
+            };
+
+            const handleUpdate = () => {
+                if (!formData.nama || !formData.nim || !formData.jurusan) {
+                    alert('Semua field harus diisi!');
+                    return;
+                }
+
+                setStudents(
+                    students.map(student =>
+                        student.id === editId
+                            ? { ...student, nama: formData.nama, nim: formData.nim, jurusan: formData.jurusan }
+                            : student
+                    )
+                );
+                resetForm();
+            };
+
+            // DELETE - Hapus data mahasiswa
+            const handleDelete = (id) => {
+                if (window.confirm('Yakin ingin menghapus data ini?')) {
+                    setStudents(students.filter(student => student.id !== id));
+                }
+            };
+
+            // Reset form
+            const resetForm = () => {
+                setFormData({ nama: '', nim: '', jurusan: '' });
+                setEditId(null);
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 py-8 px-4">
+                    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+                        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+                            📚 CRUD Data Mahasiswa
+                        </h1>
+
+                        {/* Form Input */}
+                        <div className="bg-gray-50 p-6 rounded-lg mb-8">
+                            <div className="mb-4">
+                                <label className="block text-gray-700 font-semibold mb-2">
+                                    Nama Lengkap
+                                </label>
+                                <input
+                                    type="text"
+                                    name="nama"
+                                    value={formData.nama}
+                                    onChange={handleInputChange}
+                                    placeholder="Masukkan nama lengkap"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="block text-gray-700 font-semibold mb-2">
+                                    NIM
+                                </label>
+                                <input
+                                    type="text"
+                                    name="nim"
+                                    value={formData.nim}
+                                    onChange={handleInputChange}
+                                    placeholder="Masukkan NIM"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="block text-gray-700 font-semibold mb-2">
+                                    Jurusan
+                                </label>
+                                <input
+                                    type="text"
+                                    name="jurusan"
+                                    value={formData.jurusan}
+                                    onChange={handleInputChange}
+                                    placeholder="Masukkan jurusan"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                />
+                            </div>
+
+                            <div className="flex gap-2">
+                                {editId ? (
+                                    <>
+                                        <button 
+                                            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2 rounded-lg transition duration-200"
+                                            onClick={handleUpdate}
+                                        >
+                                            ✏️ Update
+                                        </button>
+                                        <button 
+                                            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold px-6 py-2 rounded-lg transition duration-200"
+                                            onClick={resetForm}
+                                        >
+                                            ❌ Batal
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button 
+                                        className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-2 rounded-lg transition duration-200"
+                                        onClick={handleCreate}
+                                    >
+                                        ➕ Tambah Mahasiswa
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Tabel Data */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="bg-green-500 text-white">
+                                        <th className="px-4 py-3 text-left">No</th>
+                                        <th className="px-4 py-3 text-left">Nama</th>
+                                        <th className="px-4 py-3 text-left">NIM</th>
+                                        <th className="px-4 py-3 text-left">Jurusan</th>
+                                        <th className="px-4 py-3 text-left">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {students.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" className="text-center py-8 text-gray-400">
+                                                Belum ada data mahasiswa
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        students.map((student, index) => (
+                                            <tr key={student.id} className="border-b border-gray-200 hover:bg-gray-50">
+                                                <td className="px-4 py-3">{index + 1}</td>
+                                                <td className="px-4 py-3">{student.nama}</td>
+                                                <td className="px-4 py-3">{student.nim}</td>
+                                                <td className="px-4 py-3">{student.jurusan}</td>
+                                                <td className="px-4 py-3">
+                                                    <button
+                                                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1 rounded mr-2 transition duration-200"
+                                                        onClick={() => handleEdit(student)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button
+                                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded transition duration-200"
+                                                        onClick={() => handleDelete(student.id)}
+                                                    >
+                                                        Hapus
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        root.render(<App />);
+    </script>
+</body>
+</html>
